@@ -48,3 +48,12 @@ dps() {
         fi
     done <<< "$dps"
 }
+
+#
+#  List the volumes for a given container:
+#
+#  dvol <container name|id>
+#
+dvol() {
+    echo $($DSUDO docker inspect --format="{{.Volumes}}" "$@")
+}
