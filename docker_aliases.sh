@@ -41,7 +41,7 @@ dps() {
         container_short_hash=$( echo "$line" | cut -d' ' -f1 );
         container_long_hash=$( $DSUDO docker inspect --format="{{.Id}}" "$container_short_hash" );
         container_name=$( echo "$line" | rev | cut -d' ' -f1 | rev )
-        if [ -n "$container_hash" ]; then
+        if [ -n "$container_long_hash" ]; then
             ram=$(docker_mem "$container_long_hash");
             ip=$(docker_ip "$container_name");
             printf "%-${max_len}s %-15s %10s\n" "$line" "$ip" "${ram}";
