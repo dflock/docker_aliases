@@ -9,6 +9,12 @@ else
     DSUDO='sudo'
 fi
 
+#
+#  List the RAM used by a given container.
+#  Used by dps().
+#
+#  docker_mem <container name|id>
+#
 docker_mem() {
     if [ -f /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes ]; then
         echo $(( $(cat /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes) / 1024 / 1024 )) 'MB'
@@ -17,6 +23,12 @@ docker_mem() {
     fi
 }
 
+#
+#  List the IP address for a given container:
+#  Used by dps().
+#
+#  docker_ip <container name|id>
+#
 docker_ip() {
     echo $($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1")
 }
