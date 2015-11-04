@@ -35,18 +35,20 @@ dps() {
     max_len=$(echo "$tmp" | wc --max-line-length)
     dps=$(echo "$tmp" | tail --lines=+2)
 
-    printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
+    if [[ -n "$dps" ]]; then
+      printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
 
-    while read -r line; do
-        container_short_hash=$( echo "$line" | cut -d' ' -f1 );
-        container_long_hash=$( $DSUDO docker inspect --format="{{.Id}}" "$container_short_hash" );
-        container_name=$( echo "$line" | rev | cut -d' ' -f1 | rev )
-        if [ -n "$container_long_hash" ]; then
-            ram=$(docker_mem "$container_long_hash");
-            ip=$(docker_ip "$container_name");
-            printf "%-${max_len}s %-15s %10s\n" "$line" "$ip" "${ram}";
-        fi
-    done <<< "$dps"
+      while read -r line; do
+          container_short_hash=$( echo "$line" | cut -d' ' -f1 );
+          container_long_hash=$( $DSUDO docker inspect --format="{{.Id}}" "$container_short_hash" );
+          container_name=$( echo "$line" | rev | cut -d' ' -f1 | rev )
+          if [ -n "$container_long_hash" ]; then
+              ram=$(docker_mem "$container_long_hash");
+              ip=$(docker_ip "$container_name");
+              printf "%-${max_len}s %-15s %10s\n" "$line" "$ip" "${ram}";
+          fi
+      done <<< "$dps"
+    fi
 }
 
 #
