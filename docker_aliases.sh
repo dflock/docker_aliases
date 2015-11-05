@@ -71,3 +71,14 @@ dps() {
 dvol() {
     echo $($DSUDO docker inspect --format="{{.Volumes}}" "$@")
 }
+
+#
+#  Wipe and reset Docker - removing all containers & images,
+#  resetting the linkgraph.db & restarting docker.
+#
+docker_wipe() {
+  $DSUDO docker rm -f $(docker ps -a -q)
+  $DSUDO docker rmi -f $(docker images -q)
+  sudo rm "/var/lib/docker/linkgraph.db"
+  sudo restart docker
+}
