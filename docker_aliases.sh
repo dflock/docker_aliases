@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Docker Aliases
 #
@@ -24,13 +25,47 @@ docker_mem() {
 }
 
 #
+# Return the ID of the container, given the name.
+#
+# docker_id <container_name>
+#
+docker_id() {
+  ID=$( $DSUDO docker inspect --format="{{.Id}}" "$1" 2> /dev/null);
+  if (( $? >= 1 )); then
+      # Container doesn't exist
+      ID=''
+  fi
+  echo $ID
+}
+
+#
+# Return the status of the named container.
+#
+# docker_up <container_name>
+#
+docker_up() {
+  UP='Y'
+  ID=$( $DSUDO docker inspect --format="{{.Id}}" "$1" 2> /dev/null);
+  if (( $? >= 1 )); then
+    # Container doesn't exist
+    UP='N'
+  fi
+  echo "$UP"
+}
+
+#
 #  List the IP address for a given container:
 #  Used by dps().
 #
 #  docker_ip <container name|id>
 #
 docker_ip() {
-    echo $($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1")
+    IP=$($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1" 2> /dev/null)
+    if (( $? >= 1 )); then
+        # Container doesn't exist
+        IP='n/a'
+    fi
+    echo $IP
 }
 
 #
@@ -69,7 +104,12 @@ dps() {
 #  dvol <container name|id>
 #
 dvol() {
-    echo $($DSUDO docker inspect --format="{{.Volumes}}" "$@")
+    vols=$($DSUDO docker inspect --format="{{.HostConfig.Binds}}" "$1")
+    vols=${vols:1:-1}
+    for vol in $vols
+    do
+      echo "$vol"
+    done
 }
 
 #
