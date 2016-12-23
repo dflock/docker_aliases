@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 #
 # Docker Aliases
 #
@@ -10,13 +11,17 @@ else
     DSUDO='sudo'
 fi
 
+# Simple Docker aliases
+alias di='$DSUDO docker images'
+alias dps='$DSUDO docker ps -a'
+
 #
 #  List the RAM used by a given container.
 #  Used by dps().
 #
 #  docker_mem <container name|id>
 #
-docker_mem() {
+function docker_mem() {
     if [ -f /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes ]; then
         echo $(( $(cat /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes) / 1024 / 1024 )) 'MB'
     else
@@ -29,7 +34,7 @@ docker_mem() {
 #
 # docker_id <container_name>
 #
-docker_id() {
+function docker_id() {
   ID=$( $DSUDO docker inspect --format="{{.Id}}" "$1" 2> /dev/null);
   if (( $? >= 1 )); then
       # Container doesn't exist
@@ -43,7 +48,7 @@ docker_id() {
 #
 # docker_up <container_name>
 #
-docker_up() {
+function docker_up() {
   UP='Y'
   ID=$( $DSUDO docker inspect --format="{{.Id}}" "$1" 2> /dev/null);
   if (( $? >= 1 )); then
@@ -59,7 +64,7 @@ docker_up() {
 #
 #  docker_ip <container name|id>
 #
-docker_ip() {
+function docker_ip() {
     IP=$($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1" 2> /dev/null)
     if (( $? >= 1 )); then
         # Container doesn't exist
@@ -76,7 +81,7 @@ docker_ip() {
 #
 # Usage: same as 'docker ps', but 'dps', so 'dps -a', etc...
 #
-dps() {
+function dps() {
     tmp=$($DSUDO docker ps "$@")
     headings=$(echo "$tmp" | head --lines=1)
     max_len=$(echo "$tmp" | wc --max-line-length)
@@ -101,9 +106,9 @@ dps() {
 #
 #  List the volumes for a given container:
 #
-#  dvol <container name|id>
+#  docker_vol <container name|id>
 #
-dvol() {
+function docker_vol() {
     vols=$($DSUDO docker inspect --format="{{.HostConfig.Binds}}" "$1")
     vols=${vols:1:-1}
     for vol in $vols
@@ -112,13 +117,41 @@ dvol() {
     done
 }
 
+
+#
+# Remove any dangling images & exited containers
+#
+function docker_clean() {
+  echo "Removing dangling images:"
+  docker rmi "$(docker images -f "dangling=true" -q)"
+  echo "Removing exited containers:"
+  docker rm -v "$(docker ps -a -q -f status=exited)"
+}
+
 #
 #  Wipe and reset Docker - removing all containers & images,
 #  resetting the linkgraph.db & restarting docker.
 #
-docker_wipe() {
+function docker_wipe() {
   $DSUDO docker rm -f $(docker ps -a -q)
   $DSUDO docker rmi -f $(docker images -q)
   sudo rm "/var/lib/docker/linkgraph.db"
   sudo restart docker
+}
+
+
+#
+#  Perform a docker cmd on all docker containers
+#
+#  docker_all <cmd>
+#
+function docker_all() {
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 start|stop|pause|unpause|<any valid docker cmd>"
+  fi
+
+  for c in $($DSUDO docker ps -a | awk '{print $1}' | sed "1 d")
+  do
+    $DSUDO docker $1 $c
+  done
 }
