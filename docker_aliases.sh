@@ -13,7 +13,6 @@ fi
 
 # Simple Docker aliases
 alias di='$DSUDO docker images'
-alias dps='$DSUDO docker ps -a'
 
 #
 #  List the RAM used by a given container.
@@ -81,7 +80,7 @@ function docker_ip() {
 #
 # Usage: same as 'docker ps', but 'dps', so 'dps -a', etc...
 #
-function dps() {
+function docker_ps() {
     tmp=$($DSUDO docker ps "$@")
     headings=$(echo "$tmp" | head --lines=1)
     max_len=$(echo "$tmp" | wc --max-line-length)
@@ -102,6 +101,7 @@ function dps() {
       done <<< "$dps"
     fi
 }
+alias dps='docker_ps'
 
 #
 #  List the volumes for a given container:
@@ -129,8 +129,11 @@ function docker_clean() {
 }
 
 #
-#  Wipe and reset Docker - removing all containers & images,
-#  resetting the linkgraph.db & restarting docker.
+#  Delete all containers & images,
+#  reset dockers container linking DB and restart docker.
+#  The nuclear option.
+#
+#  NB: Does not prompt for confirmation.
 #
 function docker_wipe() {
   $DSUDO docker rm -f $(docker ps -a -q)

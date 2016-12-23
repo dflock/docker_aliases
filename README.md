@@ -24,7 +24,10 @@ Installing `docker_aliases` will get you some new commands to use in your bash t
 
 ### dps
 
-Like `docker ps`, but with two extra columns on the end, showing the containers local IP address and it's current RAM usage. Looks like this:
+Enhanced version of 'docker ps' which outputs two extra columns:
+
+- **IP**  : The private IP address of the container
+- **RAM** : The amount of RAM the processes inside the container are using
 
 ```console
   $ dps
@@ -39,7 +42,7 @@ Accepts the same command line switches as `docker ps` - i.e. `dps -a` works.
 
 ### docker_wipe
 
-Delete all containers & images, reset dockers container linking DB and restart docker. The nuclear option.
+The nuclear option: Delete all containers & images, reset dockers container linking DB and restart docker.
 
 **NB: Does not prompt for confirmation.**
 
@@ -47,10 +50,60 @@ Delete all containers & images, reset dockers container linking DB and restart d
 $ docker_wipe
 ```
 
-### dvol
+### docker_all
+
+Perform a docker cmd on all docker containers:
+
+```console
+$ docker_all start|stop|pause|unpause|<any valid docker cmd>
+```
+
+### docker_vol
 
 List the volumes for a given container:
 
 ```console
-$ dvol <container name|id>
+$ docker_vol <container name|id>
+```
+
+### docker_mem
+
+List the RAM used by a given container.
+Used by dps().
+
+```console
+$ docker_mem <container name|id>
+```
+
+### docker_id
+
+Return the ID of the container, given the name.
+
+```console
+$ docker_id <container_name>
+```
+
+### docker_up
+
+Return the status of the named container.
+
+```console
+$ docker_up <container_name>
+```
+
+### docker_ip
+
+List the IP address for a given container:
+Used by dps().
+
+```console
+$ docker_ip <container name|id>
+```
+
+### docker_clean
+
+Remove any dangling images & exited containers
+
+```console
+$ docker_clean
 ```
