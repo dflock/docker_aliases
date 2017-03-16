@@ -6,9 +6,9 @@
 
 # Figure out if we need to use sudo for docker commands
 if id -nG "$USER" | grep -qw "docker"; then
-    DSUDO=''
+  DSUDO=''
 else
-    DSUDO='sudo'
+  DSUDO='sudo'
 fi
 
 # Simple Docker aliases
@@ -21,11 +21,11 @@ alias di='$DSUDO docker images'
 #  docker_mem <container name|id>
 #
 function docker_mem() {
-    if [ -f /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes ]; then
-        echo $(( $(cat /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes) / 1024 / 1024 )) 'MB'
-    else
-        echo 'n/a'
-    fi
+  if [ -f /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes ]; then
+    echo $(( $(cat /sys/fs/cgroup/memory/docker/"$1"/memory.usage_in_bytes) / 1024 / 1024 )) 'MB'
+  else
+    echo 'n/a'
+  fi
 }
 
 #
@@ -36,8 +36,8 @@ function docker_mem() {
 function docker_id() {
   ID=$( $DSUDO docker inspect --format="{{.Id}}" "$1" 2> /dev/null);
   if (( $? >= 1 )); then
-      # Container doesn't exist
-      ID=''
+    # Container doesn't exist
+    ID=''
   fi
   echo $ID
 }
@@ -64,12 +64,12 @@ function docker_up() {
 #  docker_ip <container name|id>
 #
 function docker_ip() {
-    IP=$($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1" 2> /dev/null)
-    if (( $? >= 1 )); then
-        # Container doesn't exist
-        IP='n/a'
-    fi
-    echo $IP
+  IP=$($DSUDO docker inspect --format="{{.NetworkSettings.IPAddress}}" "$1" 2> /dev/null)
+  if (( $? >= 1 )); then
+    # Container doesn't exist
+    IP='n/a'
+  fi
+  echo $IP
 }
 
 #
@@ -81,25 +81,25 @@ function docker_ip() {
 # Usage: same as 'docker ps', but 'dps', so 'dps -a', etc...
 #
 function docker_ps() {
-    tmp=$($DSUDO docker ps "$@")
-    headings=$(echo "$tmp" | head --lines=1)
-    max_len=$(echo "$tmp" | wc --max-line-length)
-    dps=$(echo "$tmp" | tail --lines=+2)
+  tmp=$($DSUDO docker ps "$@")
+  headings=$(echo "$tmp" | head --lines=1)
+  max_len=$(echo "$tmp" | wc --max-line-length)
+  dps=$(echo "$tmp" | tail --lines=+2)
 
-    if [[ -n "$dps" ]]; then
-      printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
+  if [[ -n "$dps" ]]; then
+    printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
 
-      while read -r line; do
-          container_short_hash=$( echo "$line" | cut -d' ' -f1 );
-          container_long_hash=$( $DSUDO docker inspect --format="{{.Id}}" "$container_short_hash" );
-          container_name=$( echo "$line" | rev | cut -d' ' -f1 | rev )
-          if [ -n "$container_long_hash" ]; then
-              ram=$(docker_mem "$container_long_hash");
-              ip=$(docker_ip "$container_name");
-              printf "%-${max_len}s %-15s %10s\n" "$line" "$ip" "${ram}";
-          fi
-      done <<< "$dps"
-    fi
+    while read -r line; do
+      container_short_hash=$( echo "$line" | cut -d' ' -f1 );
+      container_long_hash=$( $DSUDO docker inspect --format="{{.Id}}" "$container_short_hash" );
+      container_name=$( echo "$line" | rev | cut -d' ' -f1 | rev )
+      if [ -n "$container_long_hash" ]; then
+        ram=$(docker_mem "$container_long_hash");
+        ip=$(docker_ip "$container_name");
+        printf "%-${max_len}s %-15s %10s\n" "$line" "$ip" "${ram}";
+      fi
+    done <<< "$dps"
+  fi
 }
 alias dps='docker_ps'
 
@@ -109,12 +109,12 @@ alias dps='docker_ps'
 #  docker_vol <container name|id>
 #
 function docker_vol() {
-    vols=$($DSUDO docker inspect --format="{{.HostConfig.Binds}}" "$1")
-    vols=${vols:1:-1}
-    for vol in $vols
-    do
-      echo "$vol"
-    done
+  vols=$($DSUDO docker inspect --format="{{.HostConfig.Binds}}" "$1")
+  vols=${vols:1:-1}
+  for vol in $vols
+  do
+    echo "$vol"
+  done
 }
 
 
@@ -127,6 +127,22 @@ function docker_clean() {
   echo "Removing exited containers:"
   $DSUDO docker rm -v "$(docker ps -a -q -f status=exited)"
 }
+alias dclean='docker_clean'
+
+#
+#  List the links for a given container:
+#
+#  docker_links <container name|id>
+#
+docker_links() {
+  links=$($DSUDO docker inspect --format="{{.HostConfig.Links}}" "$1")
+  # links=${vols:1:-1}
+  for link in $links
+  do
+    echo "$link"
+  done
+}
+alias dlinks='docker_links'
 
 #
 #  Delete all containers & images,
@@ -135,13 +151,19 @@ function docker_clean() {
 #
 #  NB: Does not prompt for confirmation.
 #
-function docker_wipe() {
+docker_wipe() {
   $DSUDO docker rm -f $(docker ps -a -q)
   $DSUDO docker rmi -f $(docker images -q)
-  sudo rm "/var/lib/docker/linkgraph.db"
-  sudo restart docker
-}
 
+  sudo systemctl stop docker.service || true
+  sudo stop docker || true
+
+  sudo rm -f /var/lib/docker/linkgraph.db
+  sudo rm -rf /var/lib/docker/aufs/diff/*
+
+  sudo systemctl start docker.service || true
+  sudo start docker || true
+}
 
 #
 #  Perform a docker cmd on all docker containers
@@ -158,3 +180,4 @@ function docker_all() {
     $DSUDO docker $1 $c
   done
 }
+alias dall='docker_all'
