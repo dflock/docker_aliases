@@ -123,9 +123,9 @@ function docker_vol() {
 #
 function docker_clean() {
   echo "Removing dangling images:"
-  docker rmi "$(docker images -f "dangling=true" -q)"
+  $DSUDO docker rmi "$(docker images -f "dangling=true" -q)"
   echo "Removing exited containers:"
-  docker rm -v "$(docker ps -a -q -f status=exited)"
+  $DSUDO docker rm -v "$(docker ps -a -q -f status=exited)"
 }
 
 #
