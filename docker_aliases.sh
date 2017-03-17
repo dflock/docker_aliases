@@ -177,7 +177,7 @@ function docker_all() {
 
   for c in $($DSUDO docker ps -a | awk '{print $1}' | sed "1 d")
   do
-    $DSUDO docker $1 $c
+    $DSUDO docker "$1" "$c"
   done
 }
 alias dall='docker_all'

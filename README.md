@@ -4,7 +4,14 @@ Docker bash aliases - new bash shell commands to make working with Docker contai
 
 ## Installation
 
-Save the `docker_aliases.sh` file to your home directory. Rename it to `.docker_aliases` and add this to your `~/.bashrc` file somewhere:
+Save the `docker_aliases.sh` file to your home directory. Rename it to `.docker_aliases`:
+
+```bash
+curl https://raw.githubusercontent.com/dflock/docker_aliases/master/docker_aliases.sh > ~/.docker_aliases
+```
+
+
+Then and add this to your `~/.bashrc` file somewhere:
 
 ```bash
 if [ -f ~/.docker_aliases ]; then
@@ -14,7 +21,7 @@ fi
 
 Then either close & re-open your terminal windows or do this in each one to make it refresh:
 
-```console
+```bash
 $ . ~/bashrc
 ```
 
@@ -22,7 +29,7 @@ $ . ~/bashrc
 
 Installing `docker_aliases` will get you some new commands to use in your bash terminal:
 
-### dps
+### dps | docker_ps
 
 Enhanced version of 'docker ps' which outputs two extra columns:
 
@@ -50,12 +57,13 @@ The nuclear option: Delete all containers & images, reset dockers container link
 $ docker_wipe
 ```
 
-### docker_all
+### docker_all | dall
 
 Perform a docker cmd on all docker containers:
 
 ```console
 $ docker_all start|stop|pause|unpause|<any valid docker cmd>
+$ dall start|stop|pause|unpause|<any valid docker cmd>
 ```
 
 ### docker_vol
@@ -100,10 +108,20 @@ Used by dps().
 $ docker_ip <container name|id>
 ```
 
-### docker_clean
+### docker_clean | dclean
 
 Remove any dangling images & exited containers
 
 ```console
 $ docker_clean
+$ dclean
+```
+
+### docker_links | dlinks
+
+List the links for a given container:
+
+```console
+docker_links <container name|id>
+dlinks <container name|id>
 ```
