@@ -158,14 +158,14 @@ command_exists() {
 # VAR_INIT_TYPE=$(init_type)
 #
 init_type() {
-  if [[ $(file /sbin/init =~ ELF ) =~ upstart ]]; then
+  if [[ $(file /sbin/init) =~ ELF ]]; then
     echo 'upstart';
   elif [[ $(systemctl) =~ -\.mount ]]; then
     echo 'systemd';
   elif [[ -f /etc/init.d/cron && ! -h /etc/init.d/cron ]]; then
     echo 'sysv';
   else
-    echo '';
+    echo 'unknown';
   fi
 }
 
