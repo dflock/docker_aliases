@@ -143,10 +143,6 @@ docker_links() {
 }
 alias dlinks='docker_links'
 
-command_exists() {
-  command -v "$1" &> /dev/null 2>&1 ;
-}
-
 #
 # Returns the systems init type as a string:
 #
