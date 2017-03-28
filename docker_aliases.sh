@@ -86,9 +86,8 @@ docker_ps() {
   max_len=$(echo "$tmp" | wc --max-line-length)
   dps=$(echo "$tmp" | tail --lines=+2)
 
+  printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
   if [[ -n "$dps" ]]; then
-    printf "%-${max_len}s %-15s %10s\n" "$headings" IP RAM
-
     while read -r line; do
       container_short_hash=$( echo "$line" | cut -d' ' -f1 );
       container_long_hash=$( $dsudo docker inspect --format="{{.Id}}" "$container_short_hash" );
