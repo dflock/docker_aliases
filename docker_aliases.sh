@@ -217,10 +217,7 @@ docker_wipe() {
 
   docker_ctl 'stop'
 
-  sudo rm -f /var/lib/docker/linkgraph.db
-  sudo rm -rf /var/lib/docker/aufs/diff/*
-  sudo rm -rf /var/lib/docker/network/*
-  sudo rm -rf /var/lib/docker/containers/*
+  sudo rm -rf /var/lib/docker/*
 
   docker_ctl 'start'
 }

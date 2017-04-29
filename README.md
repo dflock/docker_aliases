@@ -22,7 +22,7 @@ fi
 Then either close & re-open your terminal windows or do this in each one to make it refresh:
 
 ```bash
-$ . ~/bashrc
+$ . ~/.bashrc
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ Installing `docker_aliases` will get you some new commands to use in your bash t
 
 ### dps | docker_ps
 
-Enhanced version of 'docker ps' which outputs two extra columns:
+Enhanced version of `docker ps` which outputs two extra columns:
 
 - **IP**  : The private IP address of the container
 - **RAM** : The amount of RAM the processes inside the container are using
@@ -49,7 +49,7 @@ Accepts the same command line switches as `docker ps` - i.e. `dps -a` works.
 
 ### docker_wipe
 
-The nuclear option: Delete all containers & images, reset dockers container linking DB and restart docker.
+The nuclear option: Delete all containers & images, remove everything in `/var/lib/docker` and restart docker.
 
 **NB: Does not prompt for confirmation.**
 
